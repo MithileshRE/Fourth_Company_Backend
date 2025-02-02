@@ -1,0 +1,13 @@
+Services:
+----------
+
+1. Nginx
+2. Rabbitmq
+3. Git
+
+Commands to test services:
+--------------------------
+
+Nginx - sudo systemctl status nginx
+Rabbitmq - sudo systemctl status rabbitmq-server
+Git - git pull (if error use 'git stash') on VPS
