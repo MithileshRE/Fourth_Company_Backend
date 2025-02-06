@@ -133,4 +133,5 @@ server {
 2. sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/ #copy to enable
 3. sudo nginx -t  # Test for errors
 4. sudo systemctl restart nginx
+
 !!!! if any firewall issue  use this ---------> sudo ufw allow 'Nginx Full'
