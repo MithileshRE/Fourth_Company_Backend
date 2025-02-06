@@ -1,9 +1,9 @@
 Services:
 ----------
 
-1. Nginx
-2. Rabbitmq - 
-3. Git
+1. Nginx - 80
+2. Rabbitmq - 15672 # management UI
+3. Git 
 4. redis - 6379 PORT
 
 Commands to test services:
@@ -135,3 +135,14 @@ server {
 4. sudo systemctl restart nginx
 
 !!!! if any firewall issue  use this ---------> sudo ufw allow 'Nginx Full'
+
+
+used for RabbitMQ Que management
+---------------------------------
+
+use to start UI - sudo rabbitmq-plugins enable rabbitmq_management
+then restart - sudo systemctl restart rabbitmq-server
+
+sudo rabbitmqctl add_user myadmin mypassword
+sudo rabbitmqctl set_user_tags myadmin administrator
+sudo rabbitmqctl set_permissions -p / myadmin ".*" ".*" ".*"
