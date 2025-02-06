@@ -14,7 +14,7 @@ Rabbitmq - sudo systemctl status rabbitmq-server
 Git - git pull (if error use 'git stash') on VPS
 redis - sudo systemctl status redis-server
 
-
+---------------------------------------------------------
 To Intall Rabbitmq-server (Ubuntu- 24.04) - use below CMD
 ----------------------------------------------------------
 
@@ -66,7 +66,7 @@ sudo apt-get install rabbitmq-server -y --fix-missing
 
 "
 
-
+------------------------------------------------------
 To Intall redis-server (Ubuntu- 24.04) - use below CMD
 -------------------------------------------------------
 "
@@ -78,3 +78,59 @@ To Intall redis-server (Ubuntu- 24.04) - use below CMD
 6 - sudo apt-get install redis
 
 "
+-------------------------------
+systemD service for application
+-------------------------------
+create - 'sudo nano /etc/systemd/system/fastapi.service' {on instalization only}
+------------------
+use below Commands 👇
+------------------
+"""
+[Unit]
+Description=FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Fourth_Company_Backend
+ExecStart=/home/ubuntu/Fourth_Company_Backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+"""
+---------------------------
+To check Application status
+---------------------------
+sudo systemctl daemon-reload # On changes
+sudo systemctl start fastapi # to start
+sudo systemctl start fastapi # for status
+sudo systemctl enable fastapi  # Start on boot
+
+------------------
+Nginx Configration
+------------------
+
+1. sudo nano /etc/nginx/sites-available/fastapi
+
+paste this command 👇👇
+-----------------------
+server {
+    listen 80; # this should not change
+    server_name yourdomain.com;  # Replace with your domain or IP
+
+    location / {
+        proxy_pass http://127.0.0.1:8000/; #location of application
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+2. sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/ #copy to enable
+3. sudo nginx -t  # Test for errors
+4. sudo systemctl restart nginx
+!!!! if any firewall issue  use this ---------> sudo ufw allow 'Nginx Full'
