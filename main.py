@@ -1,14 +1,16 @@
+from fastapi import FastAPI
 from typing import Union
 import uvicorn
-
-from fastapi import FastAPI
+from celery_ser import add
 
 app = FastAPI()
 
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    result = add.delay(4, 6)  # Runs the task in the background
+    return {"Task_ID": result.id,
+            "Result:": result.get(timeout=10)}
 
 
 @app.get("/items/{item_id}")
