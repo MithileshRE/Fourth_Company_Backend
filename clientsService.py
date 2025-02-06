@@ -1,16 +1,20 @@
 import boto3
+import os
 from botocore.exceptions import NoCredentialsError, BotoCoreError
 from celery import Celery
+from dotenv import dotenv_values
 
+config = dotenv_values(".env")
 
-ses_client = boto3.client("ses", region_name="ap-south-1",
-aws_access_key_id="AKIAU5LH5ZBP2LGDDLSU",
-aws_secret_access_key="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"
+ses_client = boto3.client("ses", region_name=config["region_name"],
+aws_access_key_id=config["aws_access_key_id"],
+aws_secret_access_key=config["aws_secret_access_key"]
 )
+
 
 
 celery_app = Celery(
     "tasks",
-    broker="amqp://guest@localhost//", 
-    backend="redis://localhost:6379/0"
+    broker=config['broker'], 
+    backend=config['Que_backend']
 )
