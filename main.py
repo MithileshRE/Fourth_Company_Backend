@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from validationLayer import Base_asserts, Domains_url, UserInfo, EmailContent
+from validationLayer import Base_asserts, Domains_url, UserInfo, EmailContent, MailResponse
 from celery_ser import sendMail
 from toolService import EmailService
 import Sample_Data
@@ -32,7 +32,7 @@ async def Domain_URL(token: str = Depends(validate_token),response_model = list[
     return Sample_Data.Domains_Url
 
 @app.post("/mail_Service")
-async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token),response_model = bool):
+async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token),response_model = MailResponse):
     Pre_process = {
         "SUBJECT": f"New Application: {UserInput.Name}",
         "BODY_TEXT": f"New Application: {UserInput.Name}",
@@ -50,7 +50,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
     obj1 = EmailService(EmailContent(**Pre_process))
     result = obj1.EmailFormat()
     if(sendMail.delay(result).get()):
-        return {"Mail Status": True}
+        return  MailResponse(mail_status = True)
     raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="SomeThing Went Wrong",
