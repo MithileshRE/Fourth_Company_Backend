@@ -50,7 +50,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
     obj1 = EmailService(EmailContent(**Pre_process))
     result = obj1.EmailFormat()
     if(sendMail.delay(result).get()):
-        return True
+        return {"Mail Status": True}
     raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="SomeThing Went Wrong",
