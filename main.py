@@ -32,7 +32,7 @@ async def Domain_URL(token: str = Depends(validate_token),response_model = list[
     return Sample_Data.Domains_Url
 
 @app.post("/mail_Service")
-async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token),response_model = MailResponse):
+async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token),response_model = list[MailResponse]):
     Pre_process = {
         "SUBJECT": f"New Application: {UserInput.Name}",
         "BODY_TEXT": f"New Application: {UserInput.Name}",
@@ -50,7 +50,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
     obj1 = EmailService(EmailContent(**Pre_process))
     result = obj1.EmailFormat()
     if(sendMail.delay(result).get()):
-        return  MailResponse(mail_status = True)
+        return  [MailResponse(mail_status = True)]
     raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="SomeThing Went Wrong",
