@@ -1,5 +1,6 @@
 from fastapi import FastAPI,Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
 from validationLayer import Base_asserts, Domains_url, UserInfo, EmailContent, MailResponse
 from celery_ser import sendMail
 from toolService import EmailService
@@ -7,6 +8,13 @@ import Sample_Data
 import uvicorn
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 auth_scheme = HTTPBearer()
 
 
