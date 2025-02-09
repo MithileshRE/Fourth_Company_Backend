@@ -111,6 +111,12 @@ sudo systemctl start fastapi # for status
 sudo systemctl enable fastapi  # Start on boot
 
 ------------------
+To check Live Logs
+------------------
+1. journalctl -u fastapi -f
+
+
+------------------
 Nginx Configration
 ------------------
 
