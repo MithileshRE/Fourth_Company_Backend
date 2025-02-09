@@ -32,4 +32,4 @@ x = {
 }
 obj1 = EmailService(EmailContent(**x))
 result = obj1.EmailFormat()
-print(sendMail(result))
+print(sendMail.delay(result))
