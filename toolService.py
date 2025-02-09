@@ -1,6 +1,4 @@
 from validationLayer import EmailContent
-from celery_ser import sendMail
-
 
 class EmailService():
     def __init__(self, emailcontext: EmailContent):
@@ -30,6 +28,4 @@ x = {
     </body>
     </html>"""
 }
-obj1 = EmailService(EmailContent(**x))
-result = obj1.EmailFormat()
-print(sendMail.delay(result).get())
+
