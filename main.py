@@ -5,7 +5,6 @@ from celery_ser import sendMail
 from toolService import EmailService
 import Sample_Data
 import uvicorn
-from celery_ser import add
 
 app = FastAPI()
 auth_scheme = HTTPBearer()
