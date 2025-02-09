@@ -39,10 +39,10 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
         "BODY_HTML": f"""<head></head>
     <body>
     <h1>Hi Dear</h1>
-    <p>We have a new client<strong>
-    Name: {UserInput.Name}
-    Qualification: {UserInput.Qualification}
-    Request: {UserInput.Description}
+    <p>We have a new client<strong><br>
+    Name: {UserInput.Name}<br>
+    Qualification: {UserInput.Qualification}<br>
+    Request: {UserInput.Description}<br>
     </strong></p>
     </body>
     </html>"""

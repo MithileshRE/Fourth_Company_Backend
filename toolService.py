@@ -16,16 +16,3 @@ class EmailService():
                 },
             },
         }
-
-
-x = {
-    "SUBJECT": "Its a subject",
-    "BODY_TEXT": "Hello,\n\nThis is a test email from Amazon SES using Boto3 in Python_Application.",
-    "BODY_HTML": """<head></head>
-    <body>
-    <h1>Hello!</h1>
-    <p>This is a test email from <strong>Amazon SES</strong> using Boto3 in Python.</p>
-    </body>
-    </html>"""
-}
-
