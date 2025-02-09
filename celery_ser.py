@@ -5,8 +5,7 @@ from clientsService import ses_client
 @celery_app.task
 def add(x, y):
     return x + y
-
-#@celery_app.task
+@celery_app.task
 def sendMail(EmailFormat,sesClient=ses_client):
         try:
             response = sesClient.send_email(**EmailFormat)
