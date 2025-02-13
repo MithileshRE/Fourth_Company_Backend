@@ -1,9 +1,10 @@
 Services:
 ----------
 
-1. Nginx
-2. Rabbitmq
-3. Git
+1. Nginx - 80
+2. Rabbitmq - 15672 # management UI
+3. Git 
+4. redis - 6379 PORT
 
 Commands to test services:
 --------------------------
@@ -11,3 +12,144 @@ Commands to test services:
 Nginx - sudo systemctl status nginx
 Rabbitmq - sudo systemctl status rabbitmq-server
 Git - git pull (if error use 'git stash') on VPS
+redis - sudo systemctl status redis-server
+
+---------------------------------------------------------
+To Intall Rabbitmq-server (Ubuntu- 24.04) - use below CMD
+----------------------------------------------------------
+
+"
+#!/bin/sh
+
+sudo apt-get install curl gnupg apt-transport-https -y
+
+## Team RabbitMQ's main signing key
+curl -1sLf "https://keys.openpgp.org/vks/v1/by-fingerprint/0A9AF2115F4687BD29803A206B73A36E6026DFCA" | sudo gpg --dearmor | sudo tee /usr/share/keyrings/com.rabbitmq.team.gpg > /dev/null
+## Community mirror of Cloudsmith: modern Erlang repository
+curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-erlang.E495BB49CC4BBE5B.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg > /dev/null
+## Community mirror of Cloudsmith: RabbitMQ repository
+curl -1sLf https://github.com/rabbitmq/signing-keys/releases/download/3.0/cloudsmith.rabbitmq-server.9F4587F226208342.key | sudo gpg --dearmor | sudo tee /usr/share/keyrings/rabbitmq.9F4587F226208342.gpg > /dev/null
+
+## Add apt repositories maintained by Team RabbitMQ
+sudo tee /etc/apt/sources.list.d/rabbitmq.list <<EOF
+## Provides modern Erlang/OTP releases
+##
+deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
+
+# another mirror for redundancy
+deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.E495BB49CC4BBE5B.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-erlang/deb/ubuntu noble main
+
+## Provides RabbitMQ
+##
+deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa1.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
+
+# another mirror for redundancy
+deb [arch=amd64 signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
+deb-src [signed-by=/usr/share/keyrings/rabbitmq.9F4587F226208342.gpg] https://ppa2.rabbitmq.com/rabbitmq/rabbitmq-server/deb/ubuntu noble main
+EOF
+
+## Update package indices
+sudo apt-get update -y
+
+## Install Erlang packages
+sudo apt-get install -y erlang-base \
+                        erlang-asn1 erlang-crypto erlang-eldap erlang-ftp erlang-inets \
+                        erlang-mnesia erlang-os-mon erlang-parsetools erlang-public-key \
+                        erlang-runtime-tools erlang-snmp erlang-ssl \
+                        erlang-syntax-tools erlang-tftp erlang-tools erlang-xmerl
+
+## Install rabbitmq-server and its dependencies
+sudo apt-get install rabbitmq-server -y --fix-missing
+
+"
+
+------------------------------------------------------
+To Intall redis-server (Ubuntu- 24.04) - use below CMD
+-------------------------------------------------------
+"
+1 - sudo apt-get install lsb-release curl gpg
+2 - curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+3 - sudo chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg
+4 - echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+5 - sudo apt-get update
+6 - sudo apt-get install redis
+
+"
+-------------------------------
+systemD service for application
+-------------------------------
+create - 'sudo nano /etc/systemd/system/fastapi.service' {on instalization only}
+------------------
+use below Commands 👇
+------------------
+"""
+[Unit]
+Description=FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/Fourth_Company_Backend
+ExecStartPre=/bin/bash -c 'venv/bin/celery -A celery_ser worker --loglevel=info &'
+ExecStart=/home/ubuntu/Fourth_Company_Backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+"""
+---------------------------
+To check Application status
+---------------------------
+sudo systemctl daemon-reload # On changes
+sudo systemctl start fastapi # to start
+sudo systemctl start fastapi # for status
+sudo systemctl enable fastapi  # Start on boot
+
+------------------
+To check Live Logs
+------------------
+1. journalctl -u fastapi -f
+
+
+------------------
+Nginx Configration
+------------------
+
+1. sudo nano /etc/nginx/sites-available/fastapi
+
+paste this command 👇👇
+-----------------------
+server {
+    listen 80; # this should not change
+    server_name yourdomain.com;  # Replace with your domain or IP
+
+    location / {
+        proxy_pass http://127.0.0.1:8000/; #location of application
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+2. sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/ #copy to enable
+3. sudo nginx -t  # Test for errors
+4. sudo systemctl restart nginx
+
+!!!! if any firewall issue  use this ---------> sudo ufw allow 'Nginx Full'
+
+
+used for RabbitMQ Que management
+---------------------------------
+
+use to start UI - sudo rabbitmq-plugins enable rabbitmq_management
+then restart - sudo systemctl restart rabbitmq-server
+
+sudo rabbitmqctl add_user myadmin mypassword
+sudo rabbitmqctl set_user_tags myadmin administrator
+sudo rabbitmqctl set_permissions -p / myadmin ".*" ".*" ".*"
