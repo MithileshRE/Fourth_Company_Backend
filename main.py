@@ -85,7 +85,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
                             <strong style="color: #333333;">Email:</strong>
                         </td>
                         <td style="padding: 10px; border: 1px solid #dddddd;">
-                            <a href="mailto:{UserInput.EMAIL}" style="color: #0066cc; text-decoration: none;">{email}</a>
+                            <a href="mailto:{UserInput.EMAIL_client}" style="color: #0066cc; text-decoration: none;">{UserInput.EMAIL_client}</a>
                         </td>
                     </tr>
                     <tr>
@@ -98,7 +98,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
                     </tr>
                 </table>
 
-                <p style="margin: 20px 0 0 0; color: #666666; font-size: 14px;">This inquiry was received from {source}</p>
+                <p style="margin: 20px 0 0 0; color: #666666; font-size: 14px;">This inquiry was received from {UserInput.SOURCE}</p>
             </td>
         </tr>
         <tr>

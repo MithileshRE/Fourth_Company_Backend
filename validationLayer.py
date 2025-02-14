@@ -31,5 +31,6 @@ class Domains_url(BaseModel):
 class UserInfo(BaseModel):
     FULLNAME:str
     PHONE: int
-    EMAIL: EmailStr
+    EMAIL_client: EmailStr
     MESSAGE: str
+    SOURCE: str
