@@ -5,7 +5,7 @@ class MailResponse(BaseModel):
     
 class EmailContent(BaseModel):
     SENDER :EmailStr = "puneeth3sprime@gmail.com"
-    RECIPIENT :EmailStr = "puneeth3sprime@gmail.com"
+    RECIPIENT :EmailStr = "info@hashtechinfo.com"
     SUBJECT: str
     BODY_TEXT: str
     BODY_HTML: str
