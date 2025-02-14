@@ -1,6 +1,7 @@
 from fastapi import FastAPI,Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from validationLayer import Base_asserts, Domains_url, UserInfo, EmailContent, MailResponse
 from celery_ser import sendMail
 from toolService import EmailService
@@ -15,6 +16,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.mount("/static", StaticFiles(directory="static"), name="static")
 auth_scheme = HTTPBearer()
 
 
@@ -42,18 +44,70 @@ async def Domain_URL(token: str = Depends(validate_token),response_model = list[
 @app.post("/mail_Service")
 async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token),response_model = list[MailResponse]):
     Pre_process = {
-        "SUBJECT": f"New Application: {UserInput.Name}",
-        "BODY_TEXT": f"New Application: {UserInput.Name}",
-        "BODY_HTML": f"""<head></head>
-    <body>
-    <h1>Hi Dear</h1>
-    <p>We have a new client<strong><br>
-    Name: {UserInput.Name}<br>
-    Qualification: {UserInput.Qualification}<br>
-    Request: {UserInput.Description}<br>
-    </strong></p>
-    </body>
-    </html>"""
+        "SUBJECT": f"New Application: {UserInput.FULLNAME}",
+        "BODY_TEXT": f"New Application: {UserInput.FULLNAME}",
+        "BODY_HTML": f"""
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Form Submission</title>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+    <table cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff;">
+        <tr>
+            <td style="padding: 20px; background-color: #0066cc; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">New Contact Form Submission</h1>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px;">
+                <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px;">A new contact form submission has been received from website.</p>
+                
+                <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse: collapse;">
+                    <tr>
+                        <td style="padding: 10px; background-color: #f8f8f8; border: 1px solid #dddddd; width: 120px;">
+                            <strong style="color: #333333;">Full Name:</strong>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dddddd;">
+                            {UserInput.FULLNAME}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; background-color: #f8f8f8; border: 1px solid #dddddd;">
+                            <strong style="color: #333333;">Phone:</strong>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dddddd;">
+                            {UserInput.PHONE}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; background-color: #f8f8f8; border: 1px solid #dddddd;">
+                            <strong style="color: #333333;">Email:</strong>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dddddd;">
+                            <a href="mailto:{UserInput.EMAIL}" style="color: #0066cc; text-decoration: none;">{email}</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; background-color: #f8f8f8; border: 1px solid #dddddd;">
+                            <strong style="color: #333333;">Message:</strong>
+                        </td>
+                        <td style="padding: 10px; border: 1px solid #dddddd;">
+                            {UserInput.MESSAGE}
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="margin: 20px 0 0 0; color: #666666; font-size: 14px;">This inquiry was received from {source}</p>
+            </td>
+        </tr>
+        <tr>
+            <td style="padding: 20px; background-color: #f8f8f8; text-align: center; border-top: 1px solid #dddddd;">
+                <p style="margin: 0; color: #666666; font-size: 14px;">Please respond to this inquiry within 24 hours.</p>
+            </td>
+        </tr>
+    </table>
+</body>"""
     }
     obj1 = EmailService(EmailContent(**Pre_process))
     result = obj1.EmailFormat()

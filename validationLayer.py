@@ -12,9 +12,10 @@ class EmailContent(BaseModel):
 
 class Base_asserts(BaseModel):
     id: int
-    name: str
-    desc: str
-    image_url: HttpUrl
+    full_name: str
+    designation: str
+    comment: str
+    image_url: str
 
 class Domains_url(BaseModel):
     class Config:
@@ -28,6 +29,7 @@ class Domains_url(BaseModel):
     smallDescription: str
 
 class UserInfo(BaseModel):
-    Name:str
-    Qualification: str
-    Description: str
+    FULLNAME:str
+    PHONE: int
+    EMAIL: EmailStr
+    MESSAGE: str

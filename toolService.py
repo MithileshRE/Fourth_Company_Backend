@@ -4,7 +4,7 @@ class EmailService():
     def __init__(self, emailcontext: EmailContent):
         self.emailcontext = emailcontext
 
-    def EmailFormat(self):
+    async def EmailFormat(self):
         return {
             "Source": self.emailcontext.SENDER,
             "Destination": {"ToAddresses": [self.emailcontext.RECIPIENT]},
