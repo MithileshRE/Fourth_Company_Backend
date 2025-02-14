@@ -110,7 +110,7 @@ async def Mail_service(UserInput : UserInfo,token: str = Depends(validate_token)
 </body>"""
     }
     obj1 = EmailService(EmailContent(**Pre_process))
-    result = obj1.EmailFormat()
+    result = await obj1.EmailFormat()
     if(sendMail.delay(result).get()):
         return  [MailResponse(mail_status = True)]
     raise HTTPException(
